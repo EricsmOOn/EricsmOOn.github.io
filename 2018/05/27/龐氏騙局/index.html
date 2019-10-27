@@ -8,7 +8,7 @@
 <p>也许你觉得一个月10%的利息不算高，我来讲个小故事。</p>
 <p>传说西塔发明了国际象棋而使国王十分高兴，他决定要重赏西塔，西塔说：“我不要你的重赏 ，陛下，只要你在我的棋盘上赏一些麦子就行了。在棋盘的第1个格子里放1粒，在第2个格子里放2粒，在第3个格子里放4粒，在第4个格子里放8粒，依此类推，以后每一个格子里放的麦粒数都是前一个格子里放的麦粒数的2倍，直到放满第64个格子就行了”。区区小数，几粒麦子，这有何难，“来人”，国王令人如数付给西塔。 </p>
 <p>计数麦粒的工作开始了，第一格内放1粒，第二格内放2粒第三格内放2’粒，…还没有到第二十格，一袋麦子已经空了。一袋又一袋的麦子被扛到国王面前来。但是，麦粒数一格接一格飞快增长着，国王很快就看出，即便拿出全国的粮食，也兑现不了他对西塔的诺言。 </p>
-<p>原来，所需麦粒总数为： ＝18446744073709551615 </p>
+<p>原来，所需麦粒总数为＝18446744073709551615 </p>
 <p>这些麦子究竟有多少？大约820亿吨。按照现在全球大麦产量来看，大概550年才能满足</p>
 <p>这就是复利所带来的奇迹，爱因斯坦曾经惊叹到：“复利是人类最伟大的发明，是宇宙间最强大的力量,是世界第八大奇迹。”</p>
 <p>可能大家觉得10%的月回报不算高，看下图</p>
@@ -16,7 +16,7 @@
 <p>而仅仅再过半年，到第30个月，就是17.44倍。满3年的时候，就是31倍。</p>
 <p>你如果投资100万的话，3年后就应该给你3100万的回报。</p>
 <p>如果你打算留遗产给你的子孙，10%的月回报率，放个20年给你刚刚走上工作岗位的子女，让他们不用辛苦为了钱做不喜欢的工作，可以自由选择事业的话。</p>
-<p><strong>你现在投资**</strong>1<strong><strong>万元，</strong></strong>240<strong><strong>个月后是</strong></strong>86<strong><strong>亿倍的回报，也就是</strong></strong>86<strong><strong>万亿的财富，数量相当于去年美国的</strong></strong>GDP<strong><strong>总量。你才投入</strong></strong>1<strong>**万元哦！</strong></p>
+<p>你现在投资1万元，240个月后是86亿倍的回报，也就是86万亿的财富，数量相当于去年美国的GDP总量。你才投入1万元哦！</p>
 <p>说到这里，大家应该明白了，10%的月回报的投资机会是不会主动找上你的。</p>
 <p>世界上确实存在月回报10%的投资机会，但容量会有上限，因为市场有冲击成本。也就是说，如果用同一个策略的人多了，则该策略需要购买的资产同时就会有价格波动，从而无法再以策略需要的价格购买到。</p>
 <p>华尔街的对冲基金们，20%以上的年化回报率就已经足够交差了。因为对于土豪们而言，大量的财产增值的速度只会越来越慢，20%已经是飞速了。</p>
@@ -45,7 +45,7 @@
 <p>O(n) 函数为出金的函数，而出金的数量和入金的比值，称为该月出金意愿，用函数P(n)来表示。</p>
 <p>而出金包含本金和利息，回报率设置为固定的 r</p>
 <p>则做局者当月现金流 N(n)=I(n)-O(n)</p>
-<p>N(n)=I(n)-O(n)=I(n)-[P(n)<em>N(n-1)+N(n-1)</em>r]</p>
+<p>N(n)=I(n)-O(n)=I(n)-[P(n)N(n-1)+N(n-1)r]</p>
 <p>是个递归的式子。问题是我们没办法获取到入金的数据和出金的意愿。而旁氏骗局做局者的账本也获取不到。（谁操盘过旁氏骗局可以悄悄给我个账本，我保证不举报你 ：P）</p>
 <p>无奈，只有模拟一下了。回顾旁氏骗局的过程，都是惊人得相似。一开始投资者会非常谨慎得小小尝试一下。等到实验3次都成功后 ，就会变得疯狂起来。</p>
 <p>借助杠杆是不可阻挡的事情。但所有人借助杠杆都是有上限的。故而我们用正态分布做假设搞了个模拟的样子。</p>
@@ -57,7 +57,7 @@
 <p>P=(x<strong>-</strong>10)^2<strong>/</strong>500;er </p>
 <p>上面这图就是出金意愿的曲线图，到实践到第10次左右，是不愿意出金的。</p>
 <p>最后，我们用N(n)来模拟每个月做局者的现金流入，是一个递归函数，每次都是以上一次的入金和受骗者自身的情况而定的。</p>
-<p>O(1)=0; I(1)=(5<strong>*</strong>pi^(1<strong>/</strong>2)<strong>*</strong>erf(1<strong>/</strong>5 <strong>-</strong> 2))<strong>/</strong>2<strong>+</strong>5; N(1)=I(1); P(1)=(1<strong>-</strong>10)^2<strong>/</strong>500; <strong>for</strong> i=2:40 MO=((5<strong>*</strong>pi^(1<strong>/</strong>2)<strong>*</strong>erf((i<strong>-</strong>1)<strong>/</strong>5 <strong>-</strong> 2))<strong>/</strong>2<strong>+</strong>5<strong>-</strong>O(1))<strong>*</strong>(0.1<strong>+</strong>(i<strong>-</strong>1<strong>-</strong>10)^2<strong>/</strong>500); O(i)=MO; I(i)=(5<strong>*</strong>pi^(1<strong>/</strong>2)<strong>*</strong>erf(i<strong>/</strong>5 <strong>-</strong> 2))<strong>/</strong>2<strong>+</strong>5; P(i)=(i<strong>-</strong>10)^2<strong>/</strong>500; N(i)=I(i)<strong>+</strong>(0.9<strong>+</strong>P(i<strong>-</strong>1))<strong>*</strong>(I(i<strong>-</strong>1)<strong>-</strong>O(i<strong>-</strong>1)); <strong>end</strong> </p>
+<p>O(1)=0; I(1)=(5<strong>*</strong>pi^(1<strong>/</strong>2)<strong>*</strong>erf(1<strong>/</strong>5 <strong>-</strong> 2))<strong>/</strong>2<strong>+</strong>5; N(1)=I(1); P(1)=(1<strong>-</strong>10)^2<strong>/</strong>500; for i=2:40 MO=((5<strong>*</strong>pi^(1<strong>/</strong>2)<strong>*</strong>erf((i<strong>-</strong>1)<strong>/</strong>5 <strong>-</strong> 2))<strong>/</strong>2<strong>+</strong>5<strong>-</strong>O(1))<strong>*</strong>(0.1<strong>+</strong>(i<strong>-</strong>1<strong>-</strong>10)^2<strong>/</strong>500); O(i)=MO; I(i)=(5<strong>*</strong>pi^(1<strong>/</strong>2)<strong>*</strong>erf(i<strong>/</strong>5 <strong>-</strong> 2))<strong>/</strong>2<strong>+</strong>5; P(i)=(i<strong>-</strong>10)^2<strong>/</strong>500; N(i)=I(i)<strong>+</strong>(0.9<strong>+</strong>P(i<strong>-</strong>1))<strong>*</strong>(I(i<strong>-</strong>1)<strong>-</strong>O(i<strong>-</strong>1));  end</p>
 <p>上面这张图是做局者每次的净收入，旁氏骗局一开始的净收入在出现短暂的下滑（基本都是新入者，故而会有大量的牛刀小试），之后就会产生快速得增长。</p>
 <p>我们这里设置的是10%的每次回报，出金意愿和入金速度都是模拟出来的，没什么依据，完全是为了符合我的直觉感受。</p>
 <p>这样的模型执行到第18次左右遇到拐点，这个时候做局者可以感受到收入增长的速度为零。出金的压力开始陡增。（附带插一句，铁汇开始赠金模式之后18个月开始100%增金，疯狂加大了力度。而每次的套利收益大概在10%左右，我们的假设模拟出的结果，非常契合。考虑到铁汇有大量的营销成本，故而出现资金压力应该早于第18个月）</p>
