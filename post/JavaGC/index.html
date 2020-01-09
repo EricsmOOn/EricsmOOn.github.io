@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>JVM 垃圾收集器 | Eric's Moon</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">JVM 垃圾收集器</h1><a id="logo" href="/.">Eric's Moon</a><p class="description">为往圣继绝学 为万世开太平</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/friends/"><i class="fa fa-link"> 朋友</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">JVM 垃圾收集器</h1><div class="post-meta">Jan 9, 2020<span> | </span><span class="category"><a href="/categories/计算机/">计算机</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1.6k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 5</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" data-disqus-identifier="post/JavaGC/" href="/post/JavaGC/#disqus_thread"></a><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#垃圾收集器"><span class="toc-number">1.</span> <span class="toc-text">垃圾收集器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Serial-收集器-lt-新生代-单线程-复制算法-响应速度优先-gt"><span class="toc-number">1.1.</span> <span class="toc-text">Serial 收集器&lt;新生代/单线程/复制算法/响应速度优先&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Serial-Old-收集器-lt-老年代-单线程-标记-整理算法-响应速度优先-gt"><span class="toc-number">1.2.</span> <span class="toc-text">Serial Old 收集器&lt;老年代/单线程/标记-整理算法/响应速度优先&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-Scavenge-收集器-lt-新生代-多线程-复制算法-吞吐量优先-gt"><span class="toc-number">1.3.</span> <span class="toc-text">Parallel Scavenge 收集器&lt;新生代/多线程/复制算法/吞吐量优先&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-Old收集器-lt-老年代-多线程-标记-整理算法-吞吐量优先-gt"><span class="toc-number">1.4.</span> <span class="toc-text">Parallel Old收集器&lt;老年代/多线程/标记-整理算法/吞吐量优先&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ParNew-收集器-lt-新生代-多线程-复制算法-响应速度优先-gt"><span class="toc-number">1.5.</span> <span class="toc-text">ParNew 收集器&lt;新生代/多线程/复制算法/响应速度优先&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CMS-收集器-lt-老年代-多线程-标记-清除算法-响应速度优先-gt"><span class="toc-number">1.6.</span> <span class="toc-text">CMS 收集器&lt;老年代/多线程/标记-清除算法/响应速度优先&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1-收集器"><span class="toc-number">1.7.</span> <span class="toc-text">G1 收集器</span></a></li></ol></li></ol></div></div><div class="post-content"><h1 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h1><h2 id="Serial-收集器-lt-新生代-单线程-复制算法-响应速度优先-gt"><a href="#Serial-收集器-lt-新生代-单线程-复制算法-响应速度优先-gt" class="headerlink" title="Serial 收集器&lt;新生代/单线程/复制算法/响应速度优先&gt;"></a>Serial 收集器&lt;新生代/单线程/复制算法/响应速度优先&gt;</h2><ul>
+<li><strong>Serial（串行）</strong>收集器是最基本、发展历史最悠久的收集器，它是采用<strong>复制算法</strong>的<strong>新生代收集器</strong>。</li>
+<li>它在进行垃圾收集时，必须暂停其他所有的工作线程，直至Serial收集器收集结束为止（<strong>STW</strong>，“Stop The World”）。</li>
+</ul>
+<h2 id="Serial-Old-收集器-lt-老年代-单线程-标记-整理算法-响应速度优先-gt"><a href="#Serial-Old-收集器-lt-老年代-单线程-标记-整理算法-响应速度优先-gt" class="headerlink" title="Serial Old 收集器&lt;老年代/单线程/标记-整理算法/响应速度优先&gt;"></a>Serial Old 收集器&lt;老年代/单线程/标记-整理算法/响应速度优先&gt;</h2><ul>
+<li>Serial Old 是 Serial收集器的老年代版本，它同样是一个<strong>单线程收集器</strong>，使用<strong>“标记-整理”（Mark-Compact）</strong>算法。</li>
+</ul>
+<h2 id="Parallel-Scavenge-收集器-lt-新生代-多线程-复制算法-吞吐量优先-gt"><a href="#Parallel-Scavenge-收集器-lt-新生代-多线程-复制算法-吞吐量优先-gt" class="headerlink" title="Parallel Scavenge 收集器&lt;新生代/多线程/复制算法/吞吐量优先&gt;"></a>Parallel Scavenge 收集器&lt;新生代/多线程/复制算法/吞吐量优先&gt;</h2><ul>
+<li><strong>Parallel Scavenge</strong>收集器也是一个并行的<strong>多线程新生代</strong>收集器，它也使用<strong>复制算法</strong>。</li>
+<li>Parallel Scavenge收集器还提供了一个参数<strong>-XX:+UseAdaptiveSizePolicy</strong>，这是一个开关参数，打开参数后，就不需要手工指定新生代的大小（-Xmn）、Eden和Survivor区的比例（-XX:SurvivorRatio）、晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数了，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或者最大的吞吐量，这种方式称为<strong>GC自适应的调节策略（GC Ergonomics）</strong>。</li>
+<li>自适应调节策略也是Parallel Scavenge收集器与ParNew收集器的一个重要区别。</li>
+</ul>
+<h2 id="Parallel-Old收集器-lt-老年代-多线程-标记-整理算法-吞吐量优先-gt"><a href="#Parallel-Old收集器-lt-老年代-多线程-标记-整理算法-吞吐量优先-gt" class="headerlink" title="Parallel Old收集器&lt;老年代/多线程/标记-整理算法/吞吐量优先&gt;"></a>Parallel Old收集器&lt;老年代/多线程/标记-整理算法/吞吐量优先&gt;</h2><ul>
+<li>Parallel Old收集器是Parallel Scavenge收集器的老年代版本，使用<strong>多线程</strong>和<strong>“标记-整理”</strong>算法。</li>
+<li>在<strong>注重吞吐量</strong>以及<strong>CPU资源敏感</strong>的场合，都可以优先考虑Parallel Scavenge加Parallel Old收集器。</li>
+</ul>
+<h2 id="ParNew-收集器-lt-新生代-多线程-复制算法-响应速度优先-gt"><a href="#ParNew-收集器-lt-新生代-多线程-复制算法-响应速度优先-gt" class="headerlink" title="ParNew 收集器&lt;新生代/多线程/复制算法/响应速度优先&gt;"></a>ParNew 收集器&lt;新生代/多线程/复制算法/响应速度优先&gt;</h2><ul>
+<li><strong>ParNew</strong>收集器就是Serial收集器的<strong>多线程版本</strong>，它也是一个<strong>新生代收集器</strong>。</li>
+<li>除了Serial收集器外，目前只有它能和CMS收集器（Concurrent Mark Sweep）配合工作。</li>
+</ul>
+<h2 id="CMS-收集器-lt-老年代-多线程-标记-清除算法-响应速度优先-gt"><a href="#CMS-收集器-lt-老年代-多线程-标记-清除算法-响应速度优先-gt" class="headerlink" title="CMS 收集器&lt;老年代/多线程/标记-清除算法/响应速度优先&gt;"></a>CMS 收集器&lt;老年代/多线程/标记-清除算法/响应速度优先&gt;</h2><ul>
+<li><strong>CMS（Concurrent Mark Sweep）</strong>收集器是一种以<strong>获取最短回收停顿时间</strong>为目标的收集器，它非常符合那些集中在互联网站或者B/S系统的服务端上的Java应用，这些应用都非常重视服务的响应速度。从名字上（“Mark Sweep”）就可以看出它是基于<strong>“标记-清除”</strong>算法实现的。</li>
+<li><strong>标记-清除算法导致的空间碎片</strong> CMS是一款基于“标记-清除”算法实现的收集器，这意味着收集结束时会有大量空间碎片产生。</li>
+</ul>
+<p>CMS收集器工作的整个流程分为以下4个步骤：</p>
+<ul>
+<li><strong>初始标记（CMS initial mark）</strong>：仅仅只是标记一下GC Roots能直接关联到的对象，速度很快，需要“Stop The World”。</li>
+<li><strong>并发标记（CMS concurrent mark）</strong>：进行<strong>GC Roots Tracing</strong>的过程，在整个过程中耗时最长。</li>
+<li><strong>重新标记（CMS remark）</strong>：为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，这个阶段的停顿时间一般会比初始标记阶段稍长一些，但远比并发标记的时间短。此阶段也需要“Stop The World”。</li>
+<li><strong>并发清除（CMS concurrent sweep）</strong></li>
+</ul>
+<h2 id="G1-收集器"><a href="#G1-收集器" class="headerlink" title="G1 收集器"></a>G1 收集器</h2><ul>
+<li>G1在使用时，Java堆的内存布局与其他收集器有很大区别，它<strong>将整个Java堆划分为多个大小相等的独立区域（Region）</strong>，虽然还保留新生代和老年代的概念，但<strong>新生代和老年代不再是物理隔离的了，而都是一部分Region（不需要连续）的集合</strong>。</li>
+<li>垃圾收集器都存在 <strong>Stop The World</strong> 的问题，G1对这个问题进行了优化，G1对整个新生代和老年代一起回收，把堆划分为多个大小相等的独立区域region，使得每个region可以单独进行垃圾回收，通过记录每个region垃圾回收时间以及回收所获得的空间，并维护一个优先列表，每次根据允许的收集时间，优先回收价值最大的region。</li>
+<li><strong>并行与并发</strong> G1 能充分利用多CPU、多核环境下的硬件优势，使用多个CPU来缩短“Stop The World”停顿时间，部分其他收集器原本需要停顿Java线程执行的GC动作，G1收集器仍然可以通过并发的方式让Java程序继续执行。</li>
+<li><strong>分代收集</strong> 与其他收集器一样，分代概念在G1中依然得以保留。虽然G1可以不需要其他收集器配合就能独立管理整个GC堆，但它能够采用不同方式去处理新创建的对象和已存活一段时间、熬过多次GC的旧对象来获取更好的收集效果。</li>
+<li><strong>空间整合</strong> G1从<strong>整体</strong>来看是基于<strong>“标记-整理”</strong>算法实现的收集器，从<strong>局部</strong>上来看是基于<strong>“复制”</strong>算法实现的。这意味着G1运行期间不会产生内存空间碎片，收集后能提供规整的可用内存。此特性有利于程序长时间运行，分配大对象时不会因为无法找到连续内存空间而提前触发下一次GC。</li>
+<li><strong>可预测的停顿</strong> 这是G1相对CMS的一大优势，降低停顿时间是G1和CMS共同的关注点，但G1除了降低停顿外，还能建立<strong>可预测的停顿时间模型</strong>，能让使用者明确指定在一个长度为M毫秒的时间片段内，消耗在GC上的时间不得超过N毫秒，这几乎已经是实时Java（RTSJ）的垃圾收集器的特征了。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>垃圾收集器</th>
+<th>新生代/老年代</th>
+<th>单线程/多线程</th>
+<th>垃圾回收算法</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Serial</td>
+<td>Young</td>
+<td>Single-Thread</td>
+<td>复制</td>
+<td>响应速度优先</td>
+</tr>
+<tr>
+<td>Serial Old</td>
+<td>Old</td>
+<td>Single-Thread</td>
+<td>标记-整理</td>
+<td>响应速度优先</td>
+</tr>
+<tr>
+<td>Parallel Scavenge</td>
+<td>Young</td>
+<td>Multi-Threading</td>
+<td>复制</td>
+<td>吞吐量优先</td>
+</tr>
+<tr>
+<td>Parallel Old</td>
+<td>Old</td>
+<td>Multi-Threading</td>
+<td>标记-整理</td>
+<td>吞吐量优先</td>
+</tr>
+<tr>
+<td>ParNew</td>
+<td>Young</td>
+<td>Multi-Threading</td>
+<td>复制</td>
+<td>响应速度优先</td>
+</tr>
+<tr>
+<td>CMS</td>
+<td>Old</td>
+<td>Multi-Threading</td>
+<td>标记-清除</td>
+<td>响应速度优先</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>Both</td>
+<td>Multi-Threading</td>
+<td>局部复制 / 整体标记-整理</td>
+<td>响应速度优先</td>
+</tr>
+</tbody>
+</table>
+</div><div class="tags"><a href="/tags/面试/">面试</a><a href="/tags/GC/">GC</a><a href="/tags/垃圾收集器/">垃圾收集器</a></div><div class="post-nav"><a class="next" href="/post/JVM/">JVM虚拟机</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'https://EricsmOOn.github.io/post/JavaGC/';
+    this.page.identifier = 'post/JavaGC/';
+    this.page.title = 'JVM 垃圾收集器';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//ericsmoon.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//ericsmoon.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://ericsmoon.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/Algorithm/" style="font-size: 15px;">Algorithm</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/SCAU-OJ/" style="font-size: 15px;">SCAU OJ</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/JavaGC/">JVM 垃圾收集器</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JVM/">JVM虚拟机</a></li><li class="post-list-item"><a class="post-list-link" href="/post/2019YearEndSummary/">2019年回溯&2020年方向</a></li><li class="post-list-item"><a class="post-list-link" href="/post/scauoj8593/">8593 最大覆盖问题</a></li><li class="post-list-item"><a class="post-list-link" href="/post/blockchain/">区块链技术基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaBase/">Java 基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/markdownLead/">入门 Markdwom</a></li><li class="post-list-item"><a class="post-list-link" href="/post/springboot/">SpringBoot 组件配置笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Лето/">盛夏 Лето</a></li><li class="post-list-item"><a class="post-list-link" href="/post/ssmExample/">SSM 入门</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
