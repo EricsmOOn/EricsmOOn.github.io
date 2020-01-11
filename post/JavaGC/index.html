@@ -8,7 +8,7 @@
 <h2 id="Parallel-Scavenge-收集器-lt-新生代-多线程-复制算法-吞吐量优先-gt"><a href="#Parallel-Scavenge-收集器-lt-新生代-多线程-复制算法-吞吐量优先-gt" class="headerlink" title="Parallel Scavenge 收集器&lt;新生代/多线程/复制算法/吞吐量优先&gt;"></a>Parallel Scavenge 收集器&lt;新生代/多线程/复制算法/吞吐量优先&gt;</h2><ul>
 <li><strong>Parallel Scavenge</strong>收集器也是一个并行的<strong>多线程新生代</strong>收集器，它也使用<strong>复制算法</strong>。</li>
 <li>Parallel Scavenge收集器还提供了一个参数<strong>-XX:+UseAdaptiveSizePolicy</strong>，这是一个开关参数，打开参数后，就不需要手工指定新生代的大小（-Xmn）、Eden和Survivor区的比例（-XX:SurvivorRatio）、晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数了，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或者最大的吞吐量，这种方式称为<strong>GC自适应的调节策略（GC Ergonomics）</strong>。</li>
-<li>自适应调节策略也是Parallel Scavenge收集器与ParNew收集器的一个重要区别。</li>
+<li><strong>自适应调节策略也是Parallel Scavenge收集器与ParNew收集器的一个重要区别。</strong></li>
 </ul>
 <h2 id="Parallel-Old收集器-lt-老年代-多线程-标记-整理算法-吞吐量优先-gt"><a href="#Parallel-Old收集器-lt-老年代-多线程-标记-整理算法-吞吐量优先-gt" class="headerlink" title="Parallel Old收集器&lt;老年代/多线程/标记-整理算法/吞吐量优先&gt;"></a>Parallel Old收集器&lt;老年代/多线程/标记-整理算法/吞吐量优先&gt;</h2><ul>
 <li>Parallel Old收集器是Parallel Scavenge收集器的老年代版本，使用<strong>多线程</strong>和<strong>“标记-整理”</strong>算法。</li>
@@ -65,41 +65,41 @@
 <tr>
 <td>Parallel Scavenge</td>
 <td>Young</td>
-<td>Multi-Threading</td>
+<td>Multi-Thread</td>
 <td>复制</td>
 <td>吞吐量优先</td>
 </tr>
 <tr>
 <td>Parallel Old</td>
 <td>Old</td>
-<td>Multi-Threading</td>
+<td>Multi-Thread</td>
 <td>标记-整理</td>
 <td>吞吐量优先</td>
 </tr>
 <tr>
 <td>ParNew</td>
 <td>Young</td>
-<td>Multi-Threading</td>
+<td>Multi-Thread</td>
 <td>复制</td>
 <td>响应速度优先</td>
 </tr>
 <tr>
 <td>CMS</td>
 <td>Old</td>
-<td>Multi-Threading</td>
+<td>Multi-Thread</td>
 <td>标记-清除</td>
 <td>响应速度优先</td>
 </tr>
 <tr>
 <td>G1</td>
 <td>Both</td>
-<td>Multi-Threading</td>
+<td>Multi-Thread</td>
 <td>局部复制 / 整体标记-整理</td>
 <td>响应速度优先</td>
 </tr>
 </tbody>
 </table>
-</div><div class="tags"><a href="/tags/面试/">面试</a><a href="/tags/GC/">GC</a><a href="/tags/垃圾收集器/">垃圾收集器</a></div><div class="post-nav"><a class="next" href="/post/JVM/">JVM虚拟机</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+</div><div class="tags"><a href="/tags/面试/">面试</a><a href="/tags/GC/">GC</a><a href="/tags/垃圾收集器/">垃圾收集器</a></div><div class="post-nav"><a class="pre" href="/post/x!nzhi/">新枝科技工作总结</a><a class="next" href="/post/JVM/">JVM虚拟机</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
     this.page.url = 'https://EricsmOOn.github.io/post/JavaGC/';
     this.page.identifier = 'post/JavaGC/';
     this.page.title = 'JVM 垃圾收集器';
@@ -144,4 +144,4 @@ error: function() {
      xhr.ontimeout = function () { xhr.abort(); };
      xhr.send(null);
    });
-</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/JavaGC/">JVM 垃圾收集器</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JVM/">JVM虚拟机</a></li><li class="post-list-item"><a class="post-list-link" href="/post/2019YearEndSummary/">2019年回溯&2020年方向</a></li><li class="post-list-item"><a class="post-list-link" href="/post/blockchain/">区块链技术基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaBase/">Java 基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/markdownLead/">入门 Markdwom</a></li><li class="post-list-item"><a class="post-list-link" href="/post/springboot/">SpringBoot 组件配置笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Лето/">盛夏 Лето</a></li><li class="post-list-item"><a class="post-list-link" href="/post/ssmExample/">SSM 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaMethod/">Java 的设计模式</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/JMM/" style="font-size: 15px;">JMM</a> <a href="/tags/AQS/" style="font-size: 15px;">AQS</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/新枝/" style="font-size: 15px;">新枝</a> <a href="/tags/工作总结/" style="font-size: 15px;">工作总结</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/JMM/">JMM(并发编程) 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/x!nzhi/">新枝科技工作总结</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JavaGC/">JVM 垃圾收集器</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JVM/">JVM虚拟机</a></li><li class="post-list-item"><a class="post-list-link" href="/post/2019YearEndSummary/">2019年回溯&2020年方向</a></li><li class="post-list-item"><a class="post-list-link" href="/post/blockchain/">区块链技术基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaBase/">Java 基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/markdownLead/">入门 Markdwom</a></li><li class="post-list-item"><a class="post-list-link" href="/post/springboot/">SpringBoot 组件配置笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Лето/">盛夏 Лето</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>

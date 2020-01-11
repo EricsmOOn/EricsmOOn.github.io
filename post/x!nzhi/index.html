@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>新枝科技工作总结 | Eric's Moon</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">新枝科技工作总结</h1><a id="logo" href="/.">Eric's Moon</a><p class="description">为往圣继绝学 为万世开太平</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/friends/"><i class="fa fa-link"> 朋友</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">新枝科技工作总结</h1><div class="post-meta">Jan 10, 2020<span> | </span><span class="category"><a href="/categories/计算机/">计算机</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 3</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" data-disqus-identifier="post/x!nzhi/" href="/post/x!nzhi/#disqus_thread"></a><div class="post-content"><h1 id="新枝科技工作总结"><a href="#新枝科技工作总结" class="headerlink" title="新枝科技工作总结"></a>新枝科技工作总结</h1><h2 id="springboot整合druid并开启监控"><a href="#springboot整合druid并开启监控" class="headerlink" title="springboot整合druid并开启监控"></a>springboot整合druid并开启监控</h2><p>原因在于项目上线之后，通过了内部小范围测试，但是在面对庞大的用户市场的时候需要记录每个接口的响应速度以及健康状况，所以就需要一个接口流量信息及健康情况的监控平台。于是采用了SpringBoot整合Druid的方案。</p>
+<ul>
+<li><strong><em>durid</em></strong></li>
+</ul>
+<h2 id="springboot整合Swagger2组建文档"><a href="#springboot整合Swagger2组建文档" class="headerlink" title="springboot整合Swagger2组建文档"></a>springboot整合Swagger2组建文档</h2><p>原因在于公司扩张了前后端的队伍之后，采用原始的电子文档前后端交付的方式不足以满足开发合作的需求，于是采用了SpringBoot整合Swagger2组建文档的方案，使得前后端交付更加便捷且适合大范围的协作。</p>
+<ul>
+<li><strong><em>Swagger2</em></strong></li>
+</ul>
+<h2 id="采用OSS策略减轻服务器压力"><a href="#采用OSS策略减轻服务器压力" class="headerlink" title="采用OSS策略减轻服务器压力"></a>采用OSS策略减轻服务器压力</h2><p>原因在于服务器储存了大量的图片，且由于服务器的带宽有限，严重影响了用户体验，所以讨论采用图片服务器分离的方式，减轻服务器压力，于是使用了OSS服务改善了用户体验。</p>
+<ul>
+<li><strong><em>OSS</em></strong></li>
+</ul>
+<h2 id="采用Redis重构红包池"><a href="#采用Redis重构红包池" class="headerlink" title="采用Redis重构红包池"></a>采用Redis重构红包池</h2><p>红包池作为降噪核心算法，其原理为将每个用户的发帖对应一个Redis中的键值对，其键为可唯一标识一篇文章的string，值为当前红包剩余个数，当用户发出文章时，将Redis初始红包数量对应于该用户的影响力。之后若有用户进行文章拉取，则从红包池里寻找有余量的红包，并按照指定数量抽取文章，被抽取到的文章红包数量减一，当用户看过这篇文章并对这篇文章进行点赞时，该文章对应的红包数量加预设值，这样即可使得劣质的信息自然淘汰，使优质的信息更广泛的传播。</p>
+<p>Redis格式：文章ID ：红包余量</p>
+<p>而当我们进入市场的检验时出现了如下的问题：</p>
+<ul>
+<li>抽取红包时由于采用的是完全随机算法，使得一篇文章即使是很久远前的，只要有余量，也可能被用户抓取到。这使得用户获取文章的质量下降了。</li>
+<li>大量的红包已经没有了余量但是仍然存在于红包池中，使得红包池中存在大量的冗余。</li>
+<li>若删除红包会造成这篇文章再次被点赞时出现空指针错误，并且逻辑上红包的生命周期应同步于文章的生命周期。</li>
+<li>于是我们更改了Redis的储存格式 Redis格式：发帖时间+文章ID ：红包余量。</li>
+<li>并采用分代算法，为了平衡新信息与老信息之间的传播效率，我们将红包池逻辑上划分为年轻代与老年代。</li>
+<li>当红包池中的新红包数量达到预设值便会统一对红包余量为0的红包进行双清即Redis中删除，并在数据库中为这篇文章添加删除标记。</li>
+<li>删除标记的需求来源于对旧信息、垃圾信息的隐藏显示，提升了用户体验，同时也配合红包池机制，防止出现空指针错误，不直接删除是为了用户对创作内容具有所有权利。</li>
+<li>完成清除后将这一批文章置于逻辑上的老年代，并对包括这一批在内的所有老年代红包数减去预设值，在用户抓取文章的时候按预设比例抓取年轻代与老年代的文章。</li>
+<li><p>Redis中记录了当前红包个数，以及老年代的划分时间。</p>
+</li>
+<li><p><strong><em>Redis</em></strong></p>
+</li>
+</ul>
+<h2 id="采用Redis储存热点数据"><a href="#采用Redis储存热点数据" class="headerlink" title="采用Redis储存热点数据"></a>采用Redis储存热点数据</h2><p>原因在于对接口的监控过程中，发现部分接口等待时间太长，然后通过分析发现，部分数据被大量使用且每次需要时直接从数据库拉取，为了加快响应速度，减轻数据库查询压力，对热点数据进行缓存处理。</p>
+<ul>
+<li><strong><em>Redis</em></strong></li>
+</ul>
+</div><div class="tags"><a href="/tags/面试/">面试</a><a href="/tags/新枝/">新枝</a><a href="/tags/工作总结/">工作总结</a></div><div class="post-nav"><a class="pre" href="/post/JMM/">JMM(并发编程) 要点</a><a class="next" href="/post/JavaGC/">JVM 垃圾收集器</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'https://EricsmOOn.github.io/post/x!nzhi/';
+    this.page.identifier = 'post/x!nzhi/';
+    this.page.title = '新枝科技工作总结';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//ericsmoon.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//ericsmoon.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://ericsmoon.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/JMM/" style="font-size: 15px;">JMM</a> <a href="/tags/AQS/" style="font-size: 15px;">AQS</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/新枝/" style="font-size: 15px;">新枝</a> <a href="/tags/工作总结/" style="font-size: 15px;">工作总结</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/JMM/">JMM(并发编程) 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/x!nzhi/">新枝科技工作总结</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JavaGC/">JVM 垃圾收集器</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JVM/">JVM虚拟机</a></li><li class="post-list-item"><a class="post-list-link" href="/post/2019YearEndSummary/">2019年回溯&2020年方向</a></li><li class="post-list-item"><a class="post-list-link" href="/post/blockchain/">区块链技术基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaBase/">Java 基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/markdownLead/">入门 Markdwom</a></li><li class="post-list-item"><a class="post-list-link" href="/post/springboot/">SpringBoot 组件配置笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Лето/">盛夏 Лето</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
