@@ -1,0 +1,193 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Redis 要点 | Eric's Moon</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Redis 要点</h1><a id="logo" href="/.">Eric's Moon</a><p class="description">为往圣继绝学 为万世开太平</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/friends/"><i class="fa fa-link"> 朋友</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Redis 要点</h1><div class="post-meta">Jan 12, 2020<span> | </span><span class="category"><a href="/categories/计算机/">计算机</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1.2k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 4</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" data-disqus-identifier="post/Redis/" href="/post/Redis/#disqus_thread"></a><div class="post-content"><h1 id="Redis-要点"><a href="#Redis-要点" class="headerlink" title="Redis 要点"></a>Redis 要点</h1><ul>
+<li>Redis是一个开源的、由C语言编写的，<strong>基于内存的数据结构存储</strong>，可用作于数据库、<strong>缓存</strong>、消息中间件。</li>
+<li>常用数据类型有hash、string、list、set、sortedset，Key-Value形式，其中Key一定是string。</li>
+</ul>
+<h2 id="数据类型底层"><a href="#数据类型底层" class="headerlink" title="数据类型底层"></a>数据类型底层</h2><p>string     -&gt;     SDS                -&gt;    set,get,decr,incr,mget</p>
+<p>hash     -&gt;     ziplist/hashtable    -&gt;    hget,hset,hgetall</p>
+<p>list         -&gt;     ziplist/linkedlist    -&gt;    lpush,rpush,lpop,rpop,lrange</p>
+<p>set        -&gt;    intset/hashtable    -&gt;    sadd,spop,smembers,sunion</p>
+<p>zset        -&gt;    ziplist/skiplist        -&gt;    zadd,zrange,zrem,zcard</p>
+<h3 id="简单动态字符串-SDS"><a href="#简单动态字符串-SDS" class="headerlink" title="简单动态字符串 SDS"></a>简单动态字符串 SDS</h3><p><code>char buf[];    //字节数组</code></p>
+<p><code>int len;    //字符串长度</code></p>
+<p><code>int free;    //未使用长度</code></p>
+<h3 id="哈希表-hashtable"><a href="#哈希表-hashtable" class="headerlink" title="哈希表 hashtable"></a>哈希表 hashtable</h3><ul>
+<li>dict 结构内部包含<strong>两个 hashtable</strong>，通常情况下只有一个 hashtable 是有值的，数据结构类似于Java的hashmap。</li>
+<li>但是在 dict <strong>扩容缩容</strong>时，需要分配新的 hashtable，然后进行<strong>渐进式搬迁/渐进式rehash</strong>，这时候两个 hashtable 存储的分别是旧的 hashtable 和新的 hashtable。待搬迁结束后，旧的 hashtable 被删除，新的 hashtable 取而代之。</li>
+<li>Redis 的字典默认的 hash 函数是 <strong>siphash</strong>。</li>
+</ul>
+<h3 id="压缩列表-ziplist"><a href="#压缩列表-ziplist" class="headerlink" title="压缩列表 ziplist"></a>压缩列表 ziplist</h3><ul>
+<li>压缩列表是一块<strong>连续的内存空间</strong>，元素之间紧挨着存储，没有任何冗余空隙。</li>
+<li>hash中K、V紧挨着排列。</li>
+<li>zset中V、score紧挨着排列。</li>
+</ul>
+<h3 id="双向链表-linkedlist"><a href="#双向链表-linkedlist" class="headerlink" title="双向链表 linkedlist"></a>双向链表 linkedlist</h3><ul>
+<li>普通的双向链表。</li>
+</ul>
+<h3 id="小整数集合-intset"><a href="#小整数集合-intset" class="headerlink" title="小整数集合 intset"></a>小整数集合 intset</h3><ul>
+<li>intset始终保持从小到大有序。</li>
+</ul>
+<h3 id="跳跃链表-skiplist"><a href="#跳跃链表-skiplist" class="headerlink" title="跳跃链表 skiplist"></a>跳跃链表 skiplist</h3><ul>
+<li>拔高某一部分，形成一个新的链表结构，便于查找。</li>
+</ul>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li>纯内存操作。</li>
+<li>单线程，避免了<strong>上下文切换</strong>。</li>
+<li><strong>非阻塞I/O多路复用机制/事件驱动。</strong></li>
+</ul>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><p>缓存数据<strong>设置的过期时间相同</strong>，且Redis将这部分数据全部删光了。这就会导致在这段时间内，这些缓存<strong>同时失效</strong>，全部请求到数据库中。</p>
+<h3 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h3><p>缓存穿透是指查询一个一定<strong>不存在的数据</strong>。由于缓存不命中，这将导致这个不存在的数据<strong>每次请求都要到数据库去查询</strong>，失去了缓存的意义。</p>
+<h3 id="缓存、数据库双写一致"><a href="#缓存、数据库双写一致" class="headerlink" title="缓存、数据库双写一致"></a>缓存、数据库双写一致</h3><ul>
+<li>先更新数据库 再删除缓存</li>
+<li>先删除缓存 再更新数据库</li>
+</ul>
+<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><ul>
+<li><p>定时删除</p>
+</li>
+<li><ul>
+<li>到时间点上就把所有过期的键删除了。</li>
+</ul>
+</li>
+<li><p><strong>惰性删除</strong> - Redis使用</p>
+</li>
+<li><ul>
+<li>每次从键空间取键的时候，判断一下该键是否过期了，如果过期了就删除。</li>
+</ul>
+</li>
+<li><p><strong>定期删除</strong> - Redis使用</p>
+</li>
+<li><ul>
+<li><strong>每隔</strong>一段时间去删除过期键，<strong>限制</strong>删除的执行时长和频率。</li>
+</ul>
+</li>
+</ul>
+<h2 id="持久化方式"><a href="#持久化方式" class="headerlink" title="持久化方式"></a>持久化方式</h2><ul>
+<li><strong>RDB(基于快照)</strong>，将某一时刻的所有数据保存到一个RDB文件中。</li>
+<li><strong>AOF(append-only-file 文件追加)</strong>，当Redis服务器执行<strong>写命令</strong>的时候，将执行的<strong>写命令</strong>保存到AOF文件中。</li>
+</ul>
+<h3 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h3><ul>
+<li>SAVE会<strong>阻塞</strong>Redis服务器进程，服务器不能接收任何请求，直到RDB文件创建完毕为止。</li>
+<li>BGSAVE创建出一个<strong>子进程</strong>负责创建RDB文件，<strong>已过期的键不会保存在RDB文件中</strong>。</li>
+</ul>
+<h3 id="AOF重写"><a href="#AOF重写" class="headerlink" title="AOF重写"></a>AOF重写</h3><ul>
+<li>AOF重写由Redis自行触发，在后台子进程进行。</li>
+<li>AOF重写<strong>不需要</strong>读取现有的AOF文件，AOF重写是通过读取服务器<strong>当前数据库的数据</strong>来实现的。</li>
+</ul>
+<h2 id="内存淘汰机制"><a href="#内存淘汰机制" class="headerlink" title="内存淘汰机制"></a>内存淘汰机制</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">机制名称</th>
+<th style="text-align:center">挑选集合</th>
+<th style="text-align:center">挑选策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">volatile-lru</td>
+<td style="text-align:center">从已设置过期时间数据集中</td>
+<td style="text-align:center">最近最少使用</td>
+</tr>
+<tr>
+<td style="text-align:center">volatile-ttl</td>
+<td style="text-align:center">从已设置过期时间数据集中</td>
+<td style="text-align:center">最接近过期时间</td>
+</tr>
+<tr>
+<td style="text-align:center">volatile-random</td>
+<td style="text-align:center">从已设置过期时间数据集中</td>
+<td style="text-align:center">随机</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>allkeys-lru</strong></td>
+<td style="text-align:center">从所有数据集中</td>
+<td style="text-align:center">最近最少使用</td>
+</tr>
+<tr>
+<td style="text-align:center">allkeys-random</td>
+<td style="text-align:center">从所有数据集中</td>
+<td style="text-align:center">随机</td>
+</tr>
+<tr>
+<td style="text-align:center">noeviction</td>
+<td style="text-align:center">禁止淘汰数据</td>
+<td style="text-align:center">禁止淘汰数据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Redis-集群"><a href="#Redis-集群" class="headerlink" title="Redis 集群"></a>Redis 集群</h2><h3 id="主从架构"><a href="#主从架构" class="headerlink" title="主从架构"></a>主从架构</h3><p>特点</p>
+<ul>
+<li><strong>主</strong>服务器负责接收<strong>写</strong>请求</li>
+<li><strong>从</strong>服务器负责接收<strong>读</strong>请求</li>
+<li>从服务器的数据由主服务器<strong>复制</strong>过去。主从服务器的数据是<strong>一致</strong>的</li>
+</ul>
+<p>优势</p>
+<ul>
+<li>读写分离(主服务器负责写，从服务器负责读)</li>
+<li>高可用(某一台从服务器挂了，其他从服务器还能继续接收请求，不影响服务)</li>
+<li>处理更多的并发量(每台从服务器<strong>都可以接收读请求</strong>，<strong>读QPS</strong>就上去了)</li>
+</ul>
+<p><strong>主从复制</strong></p>
+<ul>
+<li><p>同步(sync)</p>
+</li>
+<li><ul>
+<li>将从服务器的数据库状态<strong>更新至</strong>主服务器的数据库状态</li>
+</ul>
+</li>
+<li><p>命令传播(command propagate)</p>
+</li>
+<li><ul>
+<li>主服务器的数据库状态<strong>被修改</strong>，导致主从服务器的数据库状态<strong>不一致</strong>，让主从服务器的数据库状态<strong>重新回到一致状态</strong>。</li>
+</ul>
+</li>
+</ul>
+<p><strong>哨兵机制</strong>(Sentinel)</p>
+<ul>
+<li>如果主服务器挂了，我们可以将从服务器<strong>升级</strong>为主服务器，等到旧的主服务器<strong>重连</strong>上来，会将它变成<strong>从服务器</strong>。</li>
+<li>过程称为主备切换/故障转移，用于实现Redis的<strong>高可用性</strong>。</li>
+</ul>
+</div><div class="tags"><a href="/tags/面试/">面试</a><a href="/tags/Redis/">Redis</a></div><div class="post-nav"><a class="next" href="/post/JMM/">JMM(并发编程) 要点</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'https://EricsmOOn.github.io/post/Redis/';
+    this.page.identifier = 'post/Redis/';
+    this.page.title = 'Redis 要点';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//ericsmoon.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//ericsmoon.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://ericsmoon.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/JMM/" style="font-size: 15px;">JMM</a> <a href="/tags/AQS/" style="font-size: 15px;">AQS</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/新枝/" style="font-size: 15px;">新枝</a> <a href="/tags/工作总结/" style="font-size: 15px;">工作总结</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/Redis/">Redis 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JMM/">JMM(并发编程) 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/x!nzhi/">新枝科技工作总结</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JavaGC/">JVM 垃圾收集器</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JVM/">JVM虚拟机</a></li><li class="post-list-item"><a class="post-list-link" href="/post/2019YearEndSummary/">2019年回溯&2020年方向</a></li><li class="post-list-item"><a class="post-list-link" href="/post/blockchain/">区块链技术基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaBase/">Java 基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/markdownLead/">入门 Markdwom</a></li><li class="post-list-item"><a class="post-list-link" href="/post/springboot/">SpringBoot 组件配置笔记</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
