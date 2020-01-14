@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>MySQL 要点 | Eric's Moon</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">MySQL 要点</h1><a id="logo" href="/.">Eric's Moon</a><p class="description">为往圣继绝学 为万世开太平</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/friends/"><i class="fa fa-link"> 朋友</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">MySQL 要点</h1><div class="post-meta">Jan 14, 2020<span> | </span><span class="category"><a href="/categories/计算机/">计算机</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 952</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 3</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" data-disqus-identifier="post/DBMySQL/" href="/post/DBMySQL/#disqus_thread"></a><div class="post-content"><h1 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h1><h2 id="MySQL-引擎"><a href="#MySQL-引擎" class="headerlink" title="MySQL 引擎"></a>MySQL 引擎</h2><h3 id="InnoDB"><a href="#InnoDB" class="headerlink" title="InnoDB"></a>InnoDB</h3><ul>
+<li>InnoDB是一个<strong>事务型</strong>(A原子C一致I隔离D持久)的存储引擎，有<strong>行级锁定</strong>和<strong>外键约束</strong>。</li>
+<li>InnoDB不支持FULLTEXT类型的索引。</li>
+<li>InnoDB<strong>没有保存表的行数</strong>，当SELECT COUNT(*) FROM TABLE时需要扫描全表。</li>
+<li>支持自动增加列属性auto_increment。</li>
+<li>支持故障恢复。</li>
+</ul>
+<h3 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM"></a>MyISAM</h3><ul>
+<li>MyISAM拥有较高的插入、查询速度，但<strong>不支持事务</strong>、<strong>不支持外键约束</strong>。</li>
+<li>设计之时就考虑到 数据库被查询的次数要远大于更新的次数。</li>
+<li><strong>ISAM(索引顺序访问方法)</strong>执行读取操作的速度很快，而且不占用大量的内存和存储资源。</li>
+<li>不支持主动恢复。</li>
+</ul>
+<h3 id="引擎对比"><a href="#引擎对比" class="headerlink" title="引擎对比"></a>引擎对比</h3><h4 id="事务、外键支持"><a href="#事务、外键支持" class="headerlink" title="事务、外键支持"></a>事务、外键支持</h4><p>MyISAM不支持事务和外键，而InnoDB支持。</p>
+<p>MyISAM是非事务安全型的，而InnoDB是事务安全型的，默认开启自动提交。</p>
+<h4 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h4><p>MyISAM</p>
+<p>支持(FULLTEXT类型的)全文索引</p>
+<p>InnoDB</p>
+<p>不支持(FULLTEXT类型的)全文索引。</p>
+<h4 id="表锁差异"><a href="#表锁差异" class="headerlink" title="表锁差异"></a>表锁差异</h4><p>MyISAM</p>
+<p>只支持<strong>表级锁</strong>，用户在操作myisam表时，select，update，delete，insert语句都会给表自动加锁，如果加锁以后的表满足insert并发的情况下，可以在表的尾部插入新的数据。</p>
+<p>InnoDB</p>
+<p>支持<strong>事务</strong>和<strong>行级锁</strong>，是innodb的最大特色。行级锁大幅度提高了多用户并发操作的性能。但是InnoDB的行锁，只是在WHERE的主键是有效的，非主键的WHERE都会锁全表的。</p>
+<h4 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h4><p>MyISAM</p>
+<p>每个MyISAM在磁盘上存储成三个文件。第一个文件的名字以表的名字开始，扩展名指出文件类型。.frm文件存储表定义。数据文件的扩展名为.MYD (MYData)。索引文件的扩展名是.MYI (MYIndex)。</p>
+<p>InnoDB</p>
+<p>所有的表都保存在同一个数据文件中（也可能是多个文件，或者是独立的表空间文件），InnoDB表的大小只受限于操作系统文件的大小，一般为2GB。</p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><h3 id="为什么使用索引？"><a href="#为什么使用索引？" class="headerlink" title="为什么使用索引？"></a>为什么使用索引？</h3><ul>
+<li>加快数据检索速度。</li>
+<li>避免排序耗时。</li>
+<li>将随机I/O变为顺序I/O。</li>
+</ul>
+<h3 id="为什么不全部使用索引？"><a href="#为什么不全部使用索引？" class="headerlink" title="为什么不全部使用索引？"></a>为什么不全部使用索引？</h3><ul>
+<li>对表中内容进行修改的时候，索引也要动态维护。</li>
+<li>索引会占据一定的空间。</li>
+</ul>
+<h3 id="索引覆盖"><a href="#索引覆盖" class="headerlink" title="索引覆盖"></a>索引覆盖</h3><p>如果一个索引包含所有需要查询的字段的值，称为覆盖索引。即只需扫描索引而无须回表。</p>
+<p>回表即通过索引找到了对应项的主键，再通过主键访问数据。</p>
+<h3 id="最左前缀"><a href="#最左前缀" class="headerlink" title="最左前缀"></a>最左前缀</h3><p>MySQL中的索引可以以一定顺序引用多列，这种索引叫作<strong>联合索引</strong>。</p>
+<p>如User表的name和city加联合索引就是name - city</p>
+<p><code>name=xx and city=xx;    //命中索引</code></p>
+<p><code>where name=xx;        //命中索引</code></p>
+<p><code>where city=xx;        //未命中索引</code></p>
+<h3 id="冗余索引"><a href="#冗余索引" class="headerlink" title="冗余索引"></a>冗余索引</h3><p>根据最左前缀，重复命中的索引。name - city 和 name。</p>
+<h3 id="B树-平衡多路查找树"><a href="#B树-平衡多路查找树" class="headerlink" title="B树 / 平衡多路查找树"></a>B树 / 平衡多路查找树</h3><ul>
+<li>innoDB的<strong>主索引</strong>B+树叶子节点中包含的是<strong>数据</strong>，<strong>辅助索引</strong>子节点中包含的是<strong>主键</strong>。</li>
+<li>innoDB引擎在查询辅助索引的时候会查询两次，首先通过辅助索引得到主键值，然后再查询主索引。</li>
+<li>MyISAM的<strong>主索引</strong>B+树叶子节点中包含的是<strong>行号</strong>。MyISAM的辅助索引在结构上和主索引没有本质的区别。</li>
+</ul>
+<h2 id="大表优化问题"><a href="#大表优化问题" class="headerlink" title="大表优化问题"></a>大表优化问题</h2><h3 id="垂直分区-列拆分"><a href="#垂直分区-列拆分" class="headerlink" title="垂直分区/列拆分"></a>垂直分区/列拆分</h3><p>简化表结构/主键冗余。</p>
+<h3 id="水平分区-行拆分"><a href="#水平分区-行拆分" class="headerlink" title="水平分区/行拆分"></a>水平分区/行拆分</h3><p>数据表结构不变/分表仅仅是解决了单一表数据过大的问题，但由于表的 数据还是在同一台机器上，其实对于提升MySQL并发能力没有什么意义，所以 水平拆分最好分库 。</p>
+</div><div class="tags"><a href="/tags/面试/">面试</a><a href="/tags/数据库/">数据库</a><a href="/tags/MySQL/">MySQL</a></div><div class="post-nav"><a class="next" href="/post/Redis/">Redis 要点</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'https://EricsmOOn.github.io/post/DBMySQL/';
+    this.page.identifier = 'post/DBMySQL/';
+    this.page.title = 'MySQL 要点';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//ericsmoon.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//ericsmoon.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://ericsmoon.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/JMM/" style="font-size: 15px;">JMM</a> <a href="/tags/AQS/" style="font-size: 15px;">AQS</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/新枝/" style="font-size: 15px;">新枝</a> <a href="/tags/工作总结/" style="font-size: 15px;">工作总结</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/DBMySQL/">MySQL 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Redis/">Redis 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JMM/">JMM(并发编程) 要点</a></li><li class="post-list-item"><a class="post-list-link" href="/post/x!nzhi/">新枝科技工作总结</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JavaGC/">JVM 垃圾收集器</a></li><li class="post-list-item"><a class="post-list-link" href="/post/JVM/">JVM虚拟机</a></li><li class="post-list-item"><a class="post-list-link" href="/post/2019YearEndSummary/">2019年回溯&2020年方向</a></li><li class="post-list-item"><a class="post-list-link" href="/post/blockchain/">区块链技术基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/javaBase/">Java 基础</a></li><li class="post-list-item"><a class="post-list-link" href="/post/markdownLead/">入门 Markdwom</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
