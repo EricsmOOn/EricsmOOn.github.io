@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>HTTP 进化路线图 | Eric's Moon</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">HTTP 进化路线图</h1><a id="logo" href="/.">Eric's Moon</a><p class="description">为往圣继绝学 为万世开太平</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/friends/"><i class="fa fa-link"> 朋友</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">HTTP 进化路线图</h1><div class="post-meta">May 23, 2020<span> | </span><span class="category"><a href="/categories/计算机/">计算机</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 2.6k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 9</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" data-disqus-identifier="post/about-http/" href="/post/about-http/#disqus_thread"></a><div class="post-content"><h1 id="HTTP-进化路线图‌"><a href="#HTTP-进化路线图‌" class="headerlink" title="HTTP 进化路线图‌"></a>HTTP 进化路线图‌</h1><h2 id="HTTP-0-9"><a href="#HTTP-0-9" class="headerlink" title="HTTP/0.9"></a>HTTP/0.9</h2><p>已过时。只接受 GET 一种请求方法，没有在通讯中指定版本号，且不支持请求头。由于该版本不支持 POST 方法，因此客户端无法向服务器传递太多信息。</p>
+<blockquote>
+<p>No HTTP headers (cannot transfer other content type files), No status/error codes, No URLs, No versioning.</p>
+<p>没有 HTTP 头，没有状态码，没有URL，没有版本控制。</p>
+</blockquote>
+<h2 id="HTTP-1-0‌"><a href="#HTTP-1-0‌" class="headerlink" title="HTTP/1.0‌"></a>HTTP/1.0‌</h2><p>HTTP/1.0 在请求和响应头中添加了版本号、状态码、内容类型，支持 GET HEAD POST 等请求方式。</p>
+<p>但是在 HTTP/1.0 中，服务器响应结束后，会立即终止 TCP 连接。</p>
+<h2 id="HTTP-1-1‌"><a href="#HTTP-1-1‌" class="headerlink" title="HTTP/1.1‌"></a>HTTP/1.1‌</h2><h3 id="持久化连接和管线化"><a href="#持久化连接和管线化" class="headerlink" title="持久化连接和管线化"></a>持久化连接和管线化</h3><p>在HTTP 0.9和1.0中，TCP连接在每一次请求/回应对之后关闭，所以需要大量的时间进行 TCP 三次握手。</p>
+<p>在HTTP 1.1中，引入了<strong>持久化连接</strong>（persistent connections）的机制，一个连接可以重复在多个请求/回应使用。持续连线的方式可以大大减少等待时间，因为在发出第一个请求后，双方不需要重新运行TCP握手程序握手。</p>
+<p>同时 HTTP/1.1 支持更多的请求方式：GET HEAD POST PUT DELETE TRACE OPTIONS，以及因为在默认情况下启动持久化连接，所以 <code>Keep-Alive</code> 标签被用于指定持久化连接策略，添加<code>timeout</code>和<code>max</code>参数以设置超时或限制每个连接的最大请求数。</p>
+<p><strong>请求结果管线化</strong>使得 HTML 网页加载时间动态提升，特别是在具体有高延迟的连接环境下，如卫星上网。在宽带连接中，加速不是那么显著的，因为需要服务端要遵循 HTTP/1.1 协议，<em>必须按照客户端发送的请求顺序来回复请求</em>，这样整个连接还是先进先出的，<a href>队头阻塞（HOL blocking）</a>可能会发生，造成延迟。‌</p>
+<p>管线化机制须透过持久化连线完成，并且只有 GET 和 HEAD 等要求可以进行管线化，<strong>非</strong><a href><strong>幂等</strong></a><strong>的方法</strong>，例如 POST 将不会被管线化。连续的 GET 和 HEAD 请求总可以管线化的。<em>管线化意味着无需为每一个请求开启一个 TCP 连接，也无需等待前一个请求的响应后才进行下一个请求的发送。</em></p>
+<p>队头阻塞的发生是因为，<em>在服务器端会有一个缓冲区，来存放那些已经被处理好了但是还没轮到被发送的响应。</em>比如服务器先后收到了A,B两个请求，A资源比B资源优先级要高，处理A需要10ms，处理B需要1ms，假设服务器可以并行处理请求，那么B的响应肯定是最先处理好了的，但是B响应不能先发出去，必须待在缓冲区里，等待A响应处理好了之后，先把A的响应发出去，B的响应才能够被发出去。<em>服务端必须要遵循FIFO这个原则，因为HTTP请求和响应并没有序号标识，无法将乱序的响应与请求关联起来。</em></p>
+<h3 id="分块传输编码‌"><a href="#分块传输编码‌" class="headerlink" title="分块传输编码‌"></a>分块传输编码‌</h3><p><strong>分块传输编码（Transfer-Encoding）</strong>就是这样一种解决方案：它把数据分解成一系列数据块，并以多个块发送给客户端，服务器发送数据时<strong>不再需要预先告诉客户端发送内容的总大小</strong>，只需在响应头里面添加<code>Transfer-Encoding: chunked</code>，以此来告诉浏览器我使用的是分块传输编码，这样就不需要 Content-Length 了，这就是分块传输编码 Transfer-Encoding 的作用。</p>
+<p>HTTP分块传输编码允许服务器为<strong>动态生成的内容</strong>维持HTTP持久链接。通常，持久链接需要服务器在开始发送消息体前发送Content-Length消息头字段，但是对于动态生成的内容来说，在内容创建完之前是不可知的‌。</p>
+<p>HTTP服务器有时使用压缩（gzip）以缩短传输花费的时间。分块传输编码可以用来分隔压缩对象的多个部分。在这种情况下，块不是分别压缩的，而是整个负载进行压缩，压缩的输出使用本文描述的方案进行分块传输。在压缩的情形中，分块编码有利于<strong>一边进行压缩一边发送数据</strong>，而不是先完成压缩过程以得知压缩后数据的大小‌。</p>
+<h3 id="HTTP-Upgrade"><a href="#HTTP-Upgrade" class="headerlink" title="HTTP Upgrade"></a>HTTP Upgrade</h3><p>客户端通过 <code>Upgrade</code> 头部字段列出所希望升级到的协议和版本，如果服务端不同意升级或者不支持 <code>Upgrade</code> 所列出的协议，直接忽略即可；如果服务端同意升级，那么需要响应<code>101 Switching Protocols</code>。‌</p>
+<h2 id="HTTP-2"><a href="#HTTP-2" class="headerlink" title="HTTP/2"></a>HTTP/2</h2><p>这是一个基于 SPDY 协议的修改版本。</p>
+<h3 id="ALPN-Application-Layer-Protocol-Negotiation-应用层协商协议"><a href="#ALPN-Application-Layer-Protocol-Negotiation-应用层协商协议" class="headerlink" title="ALPN Application-Layer Protocol Negotiation 应用层协商协议"></a>ALPN Application-Layer Protocol Negotiation 应用层协商协议</h3><p>HTTP/2 协议本身并没有要求它必须基于 <a href>HTTPS</a>（TLS）部署，但是在实际使用中HTTP/2 和 HTTPS 几乎都是捆绑在一起的，所以在使用 HTTP Upgrade 升级到 HTTP/2.0 时，客户端是在建立 HTTPS 连接过程中，在 TLS 连接的 <a href>Client Hello 握手</a>中，通过 ALPN 扩展列出了自己支持的各种应用层协议。其中，HTTP/2 协议名称是 <code>h2</code>。如果服务端支持 HTTP/2，在 <a href>Server Hello</a> 中指定 ALPN 的结果为 <code>h2</code> 就可以了；如果服务端不支持 HTTP/2，从客户端的 ALPN 列表中选一个自己支持的即可。</p>
+<h3 id="二进制帧"><a href="#二进制帧" class="headerlink" title="二进制帧"></a>二进制帧</h3><p>在 HTTP 2.0 中，它把数据报的两大部分分成了 <code>header frame</code> 和 <code>data frame</code>。也就是头部帧和数据体帧。帧的传输最终在<strong>流</strong>中进行，流中的帧，<code>头部(header)帧</code> 和 <code>data 帧</code>可以分为多个片段帧，例如<code>data</code>帧即是可以 <code>data = data_1 + data_2 + ... + data_n</code>。‌</p>
+<h3 id="流"><a href="#流" class="headerlink" title="流"></a>流</h3><p>双向性：同一个流内，可同时发送和接受数据。</p>
+<p>有序性：流中被传输的数据就是<code>二进制帧</code> 。帧在流上的被发送与被接收都是按照顺序进行的。</p>
+<p>并行性：流中的 <code>二进制帧</code> 都是被并行传输的，无需按顺序等待。但却不会引起数据混乱，因为每个帧都有<strong>顺序标号</strong>。它们最终会被按照顺序标号来合并。</p>
+<p>流的创建：流可以被客户端或服务器单方面建立, 使用或共享。</p>
+<p>流的关闭：流也可以被任意一方关闭。</p>
+<p>帧是流中传输的基本数据单位，每个帧具有自己的顺序标号，以使得并行以及无需连续发送加快传输速度，Header 帧或者 Data 帧都可以被拆分。‌</p>
+<h3 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h3><p>HTTP/2.0 的多路复用是 HTTP/1.1 持久化连接的升级，借由流、二进制帧的特性解决了<strong>队头阻塞</strong>的问题。</p>
+<h3 id="HPACK-算法‌"><a href="#HPACK-算法‌" class="headerlink" title="HPACK 算法‌"></a>HPACK 算法‌</h3><p>为了解决 HTTP/1.X 无意义重复头部的问题。HPACK 使用静态索引表和动态索引表来把头部映射到索引值，并对不存在的头部使用 huffman 编码，并动态缓存到索引，从而达到压缩头部的效果。</p>
+<p>当要发送的值符合静态表时，用对应的 Index 替换即可。而动态表是一个由先进先出的队列维护的有空间限制的表，里面同样维护的是头部与对应的索引，每个动态表只针对一个连接，每个连接的压缩解压缩的上下文有且仅有一个动态表。‌</p>
+<h3 id="Server-Push‌"><a href="#Server-Push‌" class="headerlink" title="Server Push‌"></a>Server Push‌</h3><p>服务器推送即服务端向客户端发送比客户端请求更多的数据。这允许服务器直接提供浏览器渲染页面所需资源，而无须浏览器在收到、解析页面后再提起一轮请求，节约了加载时间。‌</p>
+<h2 id="HTTP-3‌"><a href="#HTTP-3‌" class="headerlink" title="HTTP/3‌"></a>HTTP/3‌</h2><p>这是一个基于 QUIC 协议的应用层协议。</p>
+<p>QUIC 是一个基于 UDP 的传输层协议，采用 TLS 1.3 传输层安全协议来安全的建立连接，QUIC没有非加密的版本。</p>
+<p>QUIC建立连接时，加密算法的版本协商与传输层握手合并完成，以减小延迟。而 TCP 建立 HTTPS 连接需要七次握手。</p>
+<p>QUIC包含一个连接标识符，该标识符唯一地标识客户端与服务器之间的连接，而无论源 IP 地址是什么。这样只需发送一个包含此 ID 的数据包即可重新创建连接，因为即使用户的 IP 地址发生变化，原始连接 ID 仍然有效。反观 TCP 在需要切换 IP 地址时需要大量的工作。</p>
+<p>TCP 由于其协议的特性，致使其无法真正的解决队头阻塞的问题，而且由于网络基础设施建设的快速进展，使得一个新的传输层协议会对原有的基础设施造成极大的更新压力，这就是 QUIC 出现的环境基础。笔者希望这样的基于 UDP 的协议能够发展起来，因为 TCP 协议在今天网络环境下看起来过于保守。</p>
+<h1 id="相关概念‌"><a href="#相关概念‌" class="headerlink" title="相关概念‌"></a>相关概念‌</h1><h2 id="队头阻塞"><a href="#队头阻塞" class="headerlink" title="队头阻塞"></a>队头阻塞</h2><p>TCP 的队头阻塞，使用<a href>快速重传机制</a><strong>缓解</strong>，但无法避免。‌</p>
+<p>HTTP/1.1 的队头阻塞，在 HTTP/2.0 中使用二进制帧及序号解决，但是令人遗憾的是，队头阻塞还是会出现在 TCP 中。</p>
+<h2 id="幂等方法"><a href="#幂等方法" class="headerlink" title="幂等方法"></a>幂等方法</h2><blockquote>
+<p><a href="https://tools.ietf.org/html/rfc7231#section-4.2.2" target="_blank" rel="noopener">4.2.2. Idempotent Methods</a></p>
+<p>A request method is considered “idempotent” if the intended effect on the server of multiple identical requests with that method is the same as the effect for a single such request. Of the request methods defined by this specification, PUT, DELETE, and safe request methods are idempotent.</p>
+</blockquote>
+<p>幂等方法也就是使用该方法发送相同的多个请求的预期效果与单个此请求的效果相同，此方法即为幂等方法。</p>
+<h1 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h1><ul>
+<li><a href="https://medium.com/platform-engineer/evolution-of-http-69cfe6531ba0" target="_blank" rel="noopener">Evolution of HTTP — HTTP/0.9, HTTP/1.0, HTTP/1.1, Keep-Alive, Upgrade, and HTTPS - Thilina Ashen Gamage</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE" target="_blank" rel="noopener">Wiki -HTTP</a></li>
+<li><a href="https://juejin.im/entry/5d5e657cf265da03f33359c0" target="_blank" rel="noopener">HTTP管线化</a></li>
+<li><a href="https://foofish.net/http-transfer-encoding.html" target="_blank" rel="noopener">HTTP中的分块传输编码是怎么回事？</a></li>
+<li><a href="https://imququ.com/post/protocol-negotiation-in-http2.html" target="_blank" rel="noopener">谈谈 HTTP/2 的协议协商机制</a></li>
+<li><a href="https://juejin.im/post/5c88f2066fb9a049c043e420" target="_blank" rel="noopener">浅谈：HTTP 2.0 的二进制帧、流、多路复用</a></li>
+<li><a href="https://juejin.im/post/5ce37660f265da1bb13f05f0" target="_blank" rel="noopener">什么是队头阻塞以及如何解决</a></li>
+<li><a href="https://halfrost.com/http2-header-compression/" target="_blank" rel="noopener">详解 HTTP/2 头压缩算法 —— HPACK</a></li>
+<li><a href="https://www.jianshu.com/p/f44b930cfcac" target="_blank" rel="noopener">HPACK 完全解析</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/HTTP/3" target="_blank" rel="noopener">Wiki - HTTP/3</a></li>
+<li><a href="https://http3-explained.haxx.se/" target="_blank" rel="noopener">HTTP/3 explained</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E5%BF%AB%E9%80%9FUDP%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5" target="_blank" rel="noopener">Wiki - QUIC</a></li>
+</ul>
+</div><div class="tags"><a href="/tags/计算机网络/">计算机网络</a><a href="/tags/HTTP/">HTTP</a><a href="/tags/HTTP-2/">HTTP/2</a><a href="/tags/HTTP-3/">HTTP/3</a><a href="/tags/QUIC/">QUIC</a></div><div class="post-nav"><a class="next" href="/post/about-https/">HTTPS 流程</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'https://EricsmOOn.github.io/post/about-http/';
+    this.page.identifier = 'post/about-http/';
+    this.page.title = 'HTTP 进化路线图';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//ericsmoon.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//ericsmoon.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://ericsmoon.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://EricsmOOn.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/摘录/">摘录</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/新枝/" style="font-size: 15px;">新枝</a> <a href="/tags/年终总结/" style="font-size: 15px;">年终总结</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a> <a href="/tags/CA/" style="font-size: 15px;">CA</a> <a href="/tags/非对称加密/" style="font-size: 15px;">非对称加密</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/JMM/" style="font-size: 15px;">JMM</a> <a href="/tags/AQS/" style="font-size: 15px;">AQS</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/面试/" style="font-size: 15px;">面试</a> <a href="/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/MarkDown/" style="font-size: 15px;">MarkDown</a> <a href="/tags/文档/" style="font-size: 15px;">文档</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/SNMP/" style="font-size: 15px;">SNMP</a> <a href="/tags/简单网络管理协议/" style="font-size: 15px;">简单网络管理协议</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a> <a href="/tags/Java8/" style="font-size: 15px;">Java8</a> <a href="/tags/Lambda/" style="font-size: 15px;">Lambda</a> <a href="/tags/Stream/" style="font-size: 15px;">Stream</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/垃圾收集器/" style="font-size: 15px;">垃圾收集器</a> <a href="/tags/计算机网络/" style="font-size: 15px;">计算机网络</a> <a href="/tags/工作总结/" style="font-size: 15px;">工作总结</a> <a href="/tags/容器/" style="font-size: 15px;">容器</a> <a href="/tags/Docker/" style="font-size: 15px;">Docker</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/SSM/" style="font-size: 15px;">SSM</a> <a href="/tags/后台开发/" style="font-size: 15px;">后台开发</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 15px;">HTTP/2</a> <a href="/tags/HTTP-3/" style="font-size: 15px;">HTTP/3</a> <a href="/tags/QUIC/" style="font-size: 15px;">QUIC</a> <a href="/tags/数据结构/" style="font-size: 15px;">数据结构</a> <a href="/tags/B-树/" style="font-size: 15px;">B+树</a> <a href="/tags/区块链/" style="font-size: 15px;">区块链</a> <a href="/tags/blockchain/" style="font-size: 15px;">blockchain</a> <a href="/tags/JVM/" style="font-size: 15px;">JVM</a> <a href="/tags/类加载机制/" style="font-size: 15px;">类加载机制</a> <a href="/tags/面经/" style="font-size: 15px;">面经</a> <a href="/tags/字节跳动/" style="font-size: 15px;">字节跳动</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/经济学/" style="font-size: 15px;">经济学</a> <a href="/tags/故事/" style="font-size: 15px;">故事</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/about-http/">HTTP 进化路线图</a></li><li class="post-list-item"><a class="post-list-link" href="/post/about-https/">HTTPS 流程</a></li><li class="post-list-item"><a class="post-list-link" href="/post/about-snmp/">SNMP 协议浅析</a></li><li class="post-list-item"><a class="post-list-link" href="/post/docker-writeup/">Docker 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/post/many-why/">为什么这么设计笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/post/undefined/">推荐算法</a></li><li class="post-list-item"><a class="post-list-link" href="/post/InterviewQuestionsJava/">Java后端开发面试题汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/post/java8new/">Java8 新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/post/ByteDanceInterview0118/">字节面经</a></li><li class="post-list-item"><a class="post-list-link" href="/post/DBMySQL/">MySQL 要点</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Eric's Moon.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
